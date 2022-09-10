@@ -20,8 +20,23 @@ public class BulkApply {
 
 
 	public static void bulkApply(Message[] messages) throws MessagingException, IOException {
+		int count = 0;
+		Object wait = new Object();
 		for(Message msg: messages) {
 			parseContentAndApply(msg);
+
+			if(count ==20 ) {
+				count = 0;
+				synchronized(wait) {
+					try {
+						System.out.println("\n\n----WAITING----\n\n");
+						wait.wait(7000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			} else count++;
 		}
 	}
 	
@@ -95,7 +110,7 @@ public class BulkApply {
 			try {
 				uri = new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getQuery(), nullFragment);
 			    desktop.browse(uri);
-
+			    
 				System.out.println("Apply link opened in browser");
 			} catch (URISyntaxException e) {
 				e.printStackTrace();

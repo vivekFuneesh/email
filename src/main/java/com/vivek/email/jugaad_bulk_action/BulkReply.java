@@ -11,9 +11,12 @@ import javax.mail.Address;
 import javax.mail.Flags.Flag;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage.RecipientType;
+import javax.mail.internet.MimeMultipart;
 
 public class BulkReply {
 
@@ -21,6 +24,8 @@ public class BulkReply {
 	public static void bulkReplyToAllMessages(String content, Message[] messages, boolean toSet) 
 			throws MessagingException, IOException {
 
+		
+		
 		Arrays.sort(messages, (a,b)-> {try {
 			return a.getReceivedDate().compareTo(b.getReceivedDate());
 		} catch (MessagingException e) {
@@ -55,7 +60,7 @@ public class BulkReply {
 						reply.setRecipients(RecipientType.TO, addresses.toArray(new Address[addresses.size()]));
 					}
 					
-					reply.setText(content);
+					convertToHtml(content, reply);
 					Transport.send(reply);
 					messages[num].setFlag(Flag.SEEN, toSet);
 					System.out.println("Processed num= "+num+" from= "+ InternetAddress.toString(messages[num].getFrom()) +" "
@@ -65,5 +70,24 @@ public class BulkReply {
 				}
 			});
 		
+	}
+	
+	public static Message convertToHtml(String content, Message reply) throws MessagingException {
+
+	    Multipart multipart = new MimeMultipart( "alternative" );
+
+	    MimeBodyPart htmlPart = new MimeBodyPart();
+	    htmlPart.setContent( content, "text/html; charset=utf-8" );
+
+	    multipart.addBodyPart( htmlPart );
+	    reply.setContent( multipart );
+
+	    // Unexpected output.
+//	    System.out.println( "HTML = text/html : " + htmlPart.isMimeType( "text/html" ) );
+//	    System.out.println( "HTML Content Type: " + htmlPart.getContentType() );
+
+	    // Required magic (violates principle of least astonishment).
+	    //reply.saveChanges();
+	    return reply;
 	}
 }

@@ -1,9 +1,17 @@
 package com.vivek.email.jugaad_bulk_action;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.mail.Flags;
+import javax.mail.Flags.Flag;
+import javax.mail.internet.InternetAddress;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -11,6 +19,7 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.search.FlagTerm;
+import javax.mail.search.SearchTerm;
 
 
 /**
@@ -26,8 +35,8 @@ public class App
 
 		final String mailStoreType = "imaps";
 		final String smtpHost = "smtp.gmail.com";
-		final String username = "your_user_name.";
-		final String password = "your_password.";//for Gmail use app password 
+		final String username = "vivek@gmail.com";
+		final String password = "";//for Gmail use app password 
 
 		Properties prop = new Properties();
 		prop.put("mail.smtp.host", smtpHost);
@@ -48,16 +57,18 @@ public class App
 
 			mailStore.connect(smtpHost, username, password);
 			
-			String content = "Hi,\r\n"
-					+ "\r\n"
-					+ "https://drive.google.com/file/d/1mHprEmR7XQIv3mQ5RlDzZ3OnZt0RP67U/view?usp=drivesdk \r\n"
-					+ "\r\n"
-					+ "---\r\n"
-					+ "Thanks & Regards\r\n"
-					+ "Vivek\r\n";
-			
+			String content = "<html><body>"
+					+ ""
+					+ "Hi, "
+					+ "--- <br>"
+					+ "<b>Thanks & Regards "
+					+ "<br>"
+					+ "Vivek "
+					+ "<br>"
+					+ "<br>"
+					+ ""
+					+ "</html></body>";
 			commonReplyAndApplyToAllUnreadLabelled(content, mailStore, "JOB/ExtraJobs");
-			
 			mailStore.close();
 		
 		} catch (Exception e) {
@@ -73,11 +84,14 @@ public class App
 		folder.open(Folder.READ_WRITE);
 
 		Message[] messages = folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-	
-		//reply will set opened message as seen automatically, so sending false to unseen it
+		System.out.println(messages.length+"\n\n"+ messages[0].getReceivedDate().getTime());
+		
+
+		
 		BulkReply.bulkReplyToAllMessages(content, messages, false);
 		
 		//now apply will set unseen message back to seen.
+		
 		BulkApply.bulkApply(messages);
 		
 		System.out.println("Total Message - " + folder.getMessageCount()+" "+ folder.getDeletedMessageCount()+" "
@@ -85,6 +99,20 @@ public class App
 		
 		folder.close();
 		
+	}
+	
+	public static void bulkApply(Store mailStore, String label) throws MessagingException, IOException {
+		Folder folder = mailStore.getFolder(label);
+		
+		folder.open(Folder.READ_WRITE);
+
+		Message[] messages = folder.search(new FlagTerm( new Flags(Flag.SEEN), false));
+
+		System.out.println("found messages: =" + messages.length);
+		
+		BulkApply.bulkApply(messages);
+		//BulkFlag.bulkChangeFlag(Flag.ANSWERED, true, messages);
+		folder.close();
 	}
 
 }
