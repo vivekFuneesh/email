@@ -55,10 +55,15 @@ public class BulkReply {
 //					if(messages[num].getRecipients(RecipientType.BCC)!=null)
 //						addresses.addAll(Arrays.stream(messages[num].getRecipients(RecipientType.BCC))
 //									.collect(Collectors.toList()));
-					if(addresses.size()>0) {
+					if(reply.getAllRecipients()!=null) {
 						addresses.addAll(Arrays.stream(reply.getAllRecipients()).collect(Collectors.toList()));
-						reply.setRecipients(RecipientType.TO, addresses.toArray(new Address[addresses.size()]));
 					}
+					
+					if(addresses.size() == 0) {
+						addresses.addAll(Arrays.stream(messages[num].getFrom()).collect(Collectors.toList()));
+					}
+					reply.setRecipients(RecipientType.TO, addresses.toArray(new Address[addresses.size()]));
+					
 					
 					convertToHtml(content, reply);
 					Transport.send(reply);

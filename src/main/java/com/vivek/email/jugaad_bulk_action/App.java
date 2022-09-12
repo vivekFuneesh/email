@@ -50,7 +50,7 @@ public class App
 				return new PasswordAuthentication(username, password);
 			}
 		});
-
+		
 		Store mailStore;
 		try {
 			mailStore = session.getStore(mailStoreType);
@@ -60,15 +60,19 @@ public class App
 			String content = "<html><body>"
 					+ ""
 					+ "Hi, "
+					+ " <br><br>"
+					+ "<b>Brief-Resume Link(viewable, downloadable & updates will be reflected):</b>\n"
+					+ " https://drive.google.com/file/d/1mHprEmR7XQIv3mQ5RlDzZ3OnZt0RP67U/view?usp=drivesdk  "
+					+ " <br><br><br>"
 					+ "--- <br>"
 					+ "<b>Thanks & Regards "
 					+ "<br>"
 					+ "Vivek "
 					+ "<br>"
-					+ "<br>"
 					+ ""
 					+ "</html></body>";
 			commonReplyAndApplyToAllUnreadLabelled(content, mailStore, "JOB/ExtraJobs");
+			//bulkApply(mailStore, "JOBS/ExtraJobs");
 			mailStore.close();
 		
 		} catch (Exception e) {
@@ -85,7 +89,6 @@ public class App
 
 		Message[] messages = folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
 		System.out.println(messages.length+"\n\n"+ messages[0].getReceivedDate().getTime());
-		
 
 		
 		BulkReply.bulkReplyToAllMessages(content, messages, false);
