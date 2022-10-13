@@ -1,4 +1,4 @@
-# email
+# email (abandoned)
 A Jugaad (work-around) bulk reply and apply action for bombarded inbox
 
 This I had to make cause couldn't find a bulk-reply on internet which handles every email individually and without changing subject.
